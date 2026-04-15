@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的大型 GitHub 專案</title>
+    <style>
+        /* CSS 樣式區塊 */
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+            --card-bg: #fff;
+            --primary: #6200ea;
+        }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #f4f4f9;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-weight: bold;
+        }
+        .container {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        /* 這裡可以繼續擴充數百行的 CSS 動畫與 RWD 設置 */
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>數據儀表板</h1>
+        <button id="theme-toggle">切換深色模式</button>
+    </header>
+
+    <div class="container" id="data-container">
+        </div>
+
+    <script>
+        // JavaScript 邏輯區塊
+
+        // 1. 深色模式切換邏輯
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+        });
+
+        // 2. 模擬資料載入 (這裡是你擴充行數的絕佳位置)
+        const mockData = [
+            { id: 1, title: '專案 A', description: '這是專案 A 的詳細描述。' },
+            { id: 2, title: '專案 B', description: '這是專案 B 的詳細描述。' },
+            { id: 3, title: '專案 C', description: '這是專案 C 的詳細描述。' }
+            // 你可以在這裡放入數千筆真實資料！
+        ];
+
+        const container = document.getElementById('data-container');
+        mockData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h2>${item.title}</h2>
+                <p>${item.description}</p>
+            `;
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>

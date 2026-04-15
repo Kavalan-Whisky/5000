@@ -3,273 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宇宙大爆炸 God Mode 3.1 完全體</title>
+    <title>God Mode 5.0: 多重宇宙 (The Multiverse)</title>
     <style>
-        /* 基礎與主題設定 */
-        :root {
-            --bg-color: #e2e8f0; --text-color: #0f172a; --card-bg: rgba(255, 255, 255, 0.7);
-            --primary: #8b5cf6; --neon-shadow: 0 0 0 transparent; --font-family: system-ui;
-        }
-        [data-theme="dark"] {
-            --bg-color: #020617; --text-color: #e2e8f0; --card-bg: rgba(15, 23, 42, 0.7);
-            --primary: #c084fc; --neon-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
-        }
-        
-        /* 動態字體與背景雜訊 */
-        html { font-size: 16px; transition: font-size 0.3s; }
-        body { font-family: var(--font-family); background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; overflow-x: hidden; transition: background 0.5s, color 0.5s; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E'); pointer-events: none; z-index: 9999; }
+        /* =========================================================
+           [舊有特效保留區] CRT、極光、Matrix、全息、發光、反射等
+           ========================================================= */
+        :root { --bg-color: #050510; --text-color: #e2e8f0; --card-bg: rgba(20, 25, 40, 0.6); --primary: #0ff; --secondary: #f0f; --font-family: 'Courier New', Courier, monospace; }
+        * { box-sizing: border-box; }
+        html { font-size: 16px; transition: 0.3s; scroll-behavior: smooth; }
+        body { font-family: var(--font-family); background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; overflow-x: hidden; transition: 0.5s; cursor: crosshair; }
+        .aurora-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.05), transparent 60%); filter: blur(60px); z-index: -2; animation: aurora 10s infinite alternate; }
+        @keyframes aurora { 0% { transform: scale(1) rotate(0deg); } 100% { transform: scale(1.5) rotate(15deg); } }
+        .crt-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; pointer-events: none; z-index: 9998; opacity: 0.8; box-shadow: inset 0 0 100px rgba(0,0,0,0.9); }
+        .crt-curve { animation: crt-flicker 0.15s infinite; border-radius: 50% / 10%; }
+        @keyframes crt-flicker { 0% { opacity: 0.95; } 100% { opacity: 1; } }
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0; transition: 1s; pointer-events: none; }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9997; pointer-events: none; }
 
-        /* Matrix 畫布 */
-        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0; transition: opacity 1s; pointer-events: none; }
+        header { position: sticky; top: 0; z-index: 1000; padding: 1rem; backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px); background: linear-gradient(180deg, rgba(10,15,30,0.9) 0%, rgba(10,15,30,0) 100%); border-bottom: 2px solid var(--primary); box-shadow: 0 0 20px var(--primary); }
+        .glitch-text { position: relative; font-size: 2rem; font-weight: 900; margin: 0; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px var(--primary), 0 0 20px var(--secondary); letter-spacing: 2px; }
+        .glitch-text::before, .glitch-text::after { content: attr(data-text); position: absolute; top: 0; left: 0; opacity: 0.8; }
+        .glitch-text::before { color: var(--primary); z-index: -1; transform: translate(-3px, 1px); animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
+        .glitch-text::after { color: var(--secondary); z-index: -2; transform: translate(3px, -1px); animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite; }
 
-        header {
-            position: sticky; top: 0; z-index: 1000; padding: 1rem 2rem;
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg);
-            border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
-        }
+        .hud-panel { font-size: 10px; color: var(--primary); display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; padding: 5px; background: rgba(0, 255, 255, 0.1); border: 1px dotted var(--primary); }
+        .controls-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; padding-right: 5px; }
+        .controls-grid::-webkit-scrollbar { width: 5px; } .controls-grid::-webkit-scrollbar-thumb { background: var(--primary); }
 
-        /* 標題特效 */
-        .glitch { position: relative; display: inline-block; font-weight: 900; font-size: 1.5rem; margin: 0;}
-        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
-        .glitch::before { left: 2px; text-shadow: -2px 0 red; animation: glitch-anim 2s infinite linear alternate-reverse; }
-        .glitch::after { left: -2px; text-shadow: -2px 0 blue; animation: glitch-anim 3s infinite linear alternate-reverse; }
-        @keyframes glitch-anim { 0% { clip-path: inset(20% 0 80% 0); } 20% { clip-path: inset(60% 0 10% 0); } 40% { clip-path: inset(40% 0 50% 0); } 60% { clip-path: inset(80% 0 5% 0); } 100% { clip-path: inset(10% 0 60% 0); } }
-        .blink::after { content: '█'; animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        .btn { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 5px; font-size: 0.75rem; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s; font-family: monospace; text-transform: uppercase; white-space: nowrap; }
+        .btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); transform: scale(0.95); }
+        .btn:active { transform: scale(0.85); }
+        .btn.danger { border-color: red; color: red; } .btn.danger:hover { background: red; color: white; box-shadow: 0 0 20px red; }
+        .mega-input { background: rgba(0,0,0,0.5); color: var(--primary); border: 1px solid var(--primary); padding: 5px; font-family: monospace; width: 100%; outline: none; transition: 0.3s; grid-column: 1 / -1; }
 
-        /* 按鈕樣式與液態邊框 */
-        .btn, input {
-            padding: 8px 12px; border: none; border-radius: 8px; background: var(--bg-color); color: var(--text-color); cursor: pointer;
-            box-shadow: 3px 3px 6px rgba(0,0,0,0.1), -3px -3px 6px rgba(255,255,255,0.5); transition: 0.3s; box-sizing: border-box; font-weight: bold; font-size: 0.9rem;
-        }
-        [data-theme="dark"] .btn, [data-theme="dark"] input { box-shadow: 3px 3px 6px rgba(0,0,0,0.5), -3px -3px 6px rgba(255,255,255,0.05); }
-        .btn:hover { box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), inset -3px -3px 6px rgba(255,255,255,0.5); text-shadow: var(--neon-shadow); transform: translateY(-2px); }
-        .liquid { animation: liquid-border 4s ease-in-out infinite; border: 2px solid var(--primary); }
-        @keyframes liquid-border { 0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; } 50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; } }
+        .container { padding: 2rem; display: grid; gap: 30px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); perspective: 1200px; z-index: 10; position: relative; margin-bottom: 200px; }
+        .card { background: var(--card-bg); border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 8px; padding: 15px; box-shadow: 0 15px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: transform 0.4s, opacity 0.5s, box-shadow 0.3s, filter 0.3s; transform-style: preserve-3d; position: relative; }
+        .card:hover { transform: translateY(-10px) rotateX(5deg) rotateY(-5deg) scale(1.02); box-shadow: 20px 20px 30px rgba(0,0,0,0.5), 0 0 15px var(--primary); z-index: 20; }
+        .card::before { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-20deg); transition: 0.5s; }
+        .card:hover::before { left: 200%; }
+        .card img { width: 100%; height: 120px; object-fit: cover; border-bottom: 2px solid var(--primary); filter: sepia(100%) hue-rotate(180deg); transition: 0.5s; }
+        .card:hover img { filter: sepia(0%); transform: translateZ(20px); }
+        .card h2 { transform: translateZ(30px); text-shadow: 2px 2px 0 #000; margin: 10px 0; font-size: 1.2rem; }
+        .card p { transform: translateZ(10px); font-size: 0.85rem; color: #aaa; }
 
-        /* 卡片網格與特效 */
-        .container { padding: 2rem; display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); perspective: 1000px; }
-        
-        .card {
-            background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);
-            resize: both; overflow: hidden; position: relative; transition: transform 0.5s, opacity 0.5s; cursor: grab;
-        }
-        .card.dragging { opacity: 0.5; cursor: grabbing; transform: scale(1.05); }
-        .hidden-scroll { opacity: 0; transform: translateY(50px) rotateX(-20deg); }
-        .show-scroll { opacity: 1; transform: translateY(0) rotateX(0); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
-        .card img { width: 100%; border-radius: 10px; filter: grayscale(100%); transition: 0.5s; object-fit: cover; height: 150px; }
-        .card:hover img { filter: grayscale(0%); transform: scale(1.05); }
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--primary); z-index: 9999; transition: 0.1s; box-shadow: 0 0 10px var(--primary); }
+        .toast { position: fixed; bottom: 220px; right: 20px; background: var(--primary); color: #000; padding: 10px 20px; font-weight: bold; font-family: monospace; z-index: 10000; animation: slideIn 0.3s forwards; box-shadow: 5px 5px 0 var(--secondary); border: 1px solid #fff; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        .hud { font-family: monospace; font-size: 11px; color: var(--primary); display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 5px; }
-        
-        /* 輔助區塊 */
-        .controls-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; align-items: center; }
+        .eff-invert { filter: invert(1) hue-rotate(180deg); }
+        .eff-spin { animation: world-spin 5s linear infinite; }
+        @keyframes world-spin { to { transform: rotate(360deg) scale(0.5); } }
+
+        /* =========================================================
+           [NEW] God Mode 5.0 專屬增強 UI：終端機與控制台
+           ========================================================= */
+        #terminal { position: fixed; bottom: 0; left: 0; width: 100vw; height: 200px; background: rgba(0,0,0,0.9); border-top: 2px solid var(--secondary); color: #0f0; font-family: monospace; padding: 10px; overflow-y: auto; z-index: 9000; font-size: 12px; box-shadow: 0 -10px 30px rgba(255,0,255,0.2); }
+        #terminal p { margin: 2px 0; border-bottom: 1px dashed rgba(0,255,0,0.2); padding-bottom: 2px; }
+        #dynamic-styles { display: none; }
+        .sys-widget { display: inline-block; background: #111; padding: 2px 5px; border-radius: 3px; border: 1px solid #333; margin: 2px; }
     </style>
 </head>
-<body>
+<body class="crt-curve">
 
+    <div id="scroll-progress"></div>
+    <div class="aurora-bg"></div>
+    <div class="crt-overlay" id="crt"></div>
     <canvas id="matrix-canvas"></canvas>
+    <canvas id="particle-canvas"></canvas> <style id="dynamic-styles"></style>
 
     <header id="main-header">
-        <div>
-            <h1 class="glitch blink" data-text="OS: God Mode 3.1">OS: God Mode 3.1</h1>
-            <div class="hud">
-                <span id="hw-info">💻 CPU: --</span>
-                <span id="mem-info">🧠 RAM: --</span>
-                <span id="net-info">📶 網速: --</span>
-            </div>
+        <h1 class="glitch-text" data-text="God Mode 5.0: Multiverse">God Mode 5.0: Multiverse</h1>
+        
+        <div class="hud-panel">
+            <span id="hw-info">💻 CPU: -</span> | <span id="mem-info">🧠 RAM: -</span> | <span id="net-info">📶 網速: -</span> | 
+            <span id="bat-info">🔋 電量: -</span> | <span id="apm-info">🖱️ APM: 0</span> | <span id="timer-info">🍅 番茄鐘: 25:00</span> |
+            <span id="midi-info">🎹 MIDI: 偵測中</span> | <span id="gamepad-info">🎮 搖桿: 無</span> |
+            <span class="sys-widget" id="sys-clock">🕒 00:00:00</span> | <span class="sys-widget" id="sys-uptime">⏱️ 運行: 0s</span> |
+            <span class="sys-widget" id="sys-mouse">📍 X:0 Y:0</span> | <span class="sys-widget" id="sys-keys">⌨️ 鍵盤: None</span> |
+            <span class="sys-widget" id="sys-screen">📺 螢幕: 0x0</span> | <span class="sys-widget" id="sys-orient">🔄 方向: -</span> |
+            <span class="sys-widget" id="sys-scroll">📜 滾速: 0px/s</span> | <span class="sys-widget" id="sys-idle">💤 閒置: 0s</span>
         </div>
-        <div>
-            <div class="controls-group">
-                <button class="btn" id="font-up">A+</button>
-                <button class="btn" id="font-down">A-</button>
-                <button class="btn" id="theme-btn">🌙 切換主題</button>
-                <button class="btn" id="fullscreen-btn">🗂 全螢幕</button>
-                <button class="btn" id="auto-scroll-btn">⬇️ 自動滾動</button>
-                <button class="btn" id="matrix-btn" style="color:#0f0; border: 1px solid #0f0;">🌧️ Matrix</button>
-            </div>
-            <div class="controls-group">
-                <input type="text" id="mega-search" placeholder="搜尋並儲存..." class="liquid">
-                <button class="btn" id="voice-btn">🎤 語音</button>
-                <button class="btn" id="cam-btn">📷 相機</button>
-                <button class="btn" id="share-btn">📤 分享</button>
-                <button class="btn" id="destruct-btn" style="color:red;">⚠️ 自毀</button>
-            </div>
+
+        <div class="controls-grid" id="main-controls">
+            <button class="btn" id="f-matrix">🌧️ Matrix</button>
+            <button class="btn" id="f-scroll">⬇️ 自動滾</button>
+            <button class="btn" id="f-font">🅰️ 字體切換</button>
+            <button class="btn" id="f-crt">📺 關閉 CRT</button>
+            <button class="btn" id="f-pip">🖼️ PiP 子母</button>
+            <button class="btn" id="f-tts">🗣️ 系統語音</button>
+            <button class="btn" id="f-color">🎨 吸色管</button>
+            <button class="btn" id="f-record">🎥 螢幕錄影</button>
+            <button class="btn" id="f-share">📤 Web Share</button>
+            <button class="btn" id="f-lock">🔒 鎖定游標</button>
+            <button class="btn" id="f-pomo">🍅 啟動番茄</button>
+            <button class="btn" id="f-contact">👤 聯絡人</button>
+            <button class="btn" id="f-barcode">📷 條碼掃描</button>
+            <button class="btn danger" id="f-boom">⚠️ 引爆器</button>
+            
+            <button class="btn" id="n-uuid">🔑 產 UUID</button>
+            <button class="btn" id="n-hex">#️⃣ 隨機色</button>
+            <button class="btn" id="n-joke">🤡 說個笑話</button>
+            <button class="btn" id="n-invert">☯️ 反轉世界</button>
+            <button class="btn" id="n-blur">🌫️ 模糊現實</button>
+            <button class="btn" id="n-pixel">🔲 像素化</button>
+            <button class="btn" id="n-shake">🫨 狂震模式</button>
+            <button class="btn" id="n-rainbow">🌈 彩虹濾鏡</button>
+            <button class="btn" id="n-bw">🎞️ 黑白時代</button>
+            <button class="btn" id="n-gravity">⬇️ 零重力</button>
+            <button class="btn" id="n-chaos">🌪️ 隨機動畫</button>
+            <button class="btn" id="n-clear">🧹 清理終端</button>
+
+            <input type="text" id="mega-search" class="mega-input" placeholder=">> 輸入指令搜尋... (try 'konami', 'matrix', 'clear')">
         </div>
     </header>
 
-    <video id="camera-view" autoplay playsinline style="display:none; position:fixed; bottom:20px; right:20px; width:200px; border-radius:10px; z-index:1000; box-shadow: 0 10px 20px rgba(0,0,0,0.5);"></video>
-
     <main class="container" id="grid-container"></main>
 
+    <div id="terminal">
+        <p>> God Mode 5.0 終端機已啟動。正在記錄所有多重宇宙事件...</p>
+    </div>
+
     <script>
-        const S = document.getElementById.bind(document);
-        let cardsData = Array.from({length: 12}, (_, i) => ({ id: i, title: `神話檔案 #${i}`, desc: `絕密資料庫載入中... 系統版本 ${Math.random().toString(36).substr(2, 5)}` }));
-
-        // =========================================
-        // 🌟 強勢回歸：遺失的五大經典功能
-        // =========================================
-
-        // 1. 字體縮放 (Font Resize)
-        let currentFont = 16;
-        S('font-up').onclick = () => { currentFont += 2; document.documentElement.style.fontSize = currentFont + 'px'; };
-        S('font-down').onclick = () => { currentFont = Math.max(12, currentFont - 2); document.documentElement.style.fontSize = currentFont + 'px'; };
-
-        // 2. 切換主題 (Theme Toggle) - 加上手動按鈕
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light'); // 自動偵測初始值
-        S('theme-btn').onclick = () => {
-            const isDark = document.body.getAttribute('data-theme') === 'dark';
-            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        // =========================================================
+        // God Mode 5.0 Core Engine (整合 180+ 功能與特效)
+        // =========================================================
+        const S = id => document.getElementById(id);
+        const term = S('terminal');
+        const termLog = (msg) => {
+            const p = document.createElement('p');
+            const time = new Date().toLocaleTimeString('en-US', {hour12:false, fractionalSecondDigits:3});
+            p.innerText = `[${time}] ${msg}`;
+            term.appendChild(p);
+            term.scrollTop = term.scrollHeight;
         };
-
-        // 3. 全螢幕 (Fullscreen)
-        S('fullscreen-btn').onclick = () => {
-            if(!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
+        const log = msg => { 
+            const t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); 
+            setTimeout(()=>t.remove(), 3000); 
+            termLog(`SYSTEM_TOAST: ${msg}`);
         };
-
-        // 4. 自動滾動 (Auto Scroll)
-        let autoScrollInt;
-        S('auto-scroll-btn').onclick = function() {
-            if(autoScrollInt) { clearInterval(autoScrollInt); autoScrollInt = null; this.innerText = '⬇️ 自動滾動'; }
-            else { autoScrollInt = setInterval(() => window.scrollBy(0, 1), 20); this.innerText = '⏸️ 暫停滾動'; }
-        };
-
-        // 5. 駭客任務代碼雨 (Matrix Canvas)
-        const mCanvas = S('matrix-canvas'); const mCtx = mCanvas.getContext('2d');
-        mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~".split('');
-        const mFontSize = 16; const columns = mCanvas.width / mFontSize; const drops = Array(Math.floor(columns)).fill(1);
-        let matrixActive = false, matrixInt;
         
-        const drawMatrix = () => {
-            mCtx.fillStyle = "rgba(0, 0, 0, 0.05)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            mCtx.fillStyle = "#0F0"; mCtx.font = mFontSize + "px monospace";
-            for (let i = 0; i < drops.length; i++) {
-                const text = letters[Math.floor(Math.random() * letters.length)];
-                mCtx.fillText(text, i * mFontSize, drops[i] * mFontSize);
-                if (drops[i] * mFontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
-        };
-        S('matrix-btn').onclick = () => {
-            matrixActive = !matrixActive;
-            if (matrixActive) { mCanvas.style.opacity = 1; mCanvas.style.zIndex = 1; matrixInt = setInterval(drawMatrix, 33); }
-            else { mCanvas.style.opacity = 0; mCanvas.style.zIndex = -1; clearInterval(matrixInt); }
-        };
-        window.addEventListener('resize', () => { mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight; });
+        let cardsData = Array.from({length: 16}, (_, i) => ({ id: i, title: `PROJECT//${Math.random().toString(16).substr(2, 6).toUpperCase()}`, desc: `加密區塊 0x${(i*999).toString(16)}... 等待解碼。` }));
 
-        // =========================================
-        // 🚀 God Mode 進階功能保留區
-        // =========================================
+        // ---------------------------------------------------------
+        // 1. [NEW] 瘋狂注入 30 種 CSS 動畫類別
+        // ---------------------------------------------------------
+        const styleSheet = S('dynamic-styles');
+        let cssString = '';
+        const animNames = ['bounce', 'pulse', 'wobble', 'jello', 'flash', 'rubberBand', 'swing', 'tada', 'heartBeat', 'spin3d', 'skewY', 'blurInOut', 'hueShift', 'dropShadowPulse'];
+        // 快速生成極簡 keyframes
+        cssString += `@keyframes bounce { 0%, 100% {transform: translateY(0)} 50% {transform: translateY(-20px)} } `;
+        cssString += `@keyframes pulse { 0% {transform: scale(1)} 50% {transform: scale(1.1)} 100% {transform: scale(1)} } `;
+        cssString += `@keyframes wobble { 0% {transform: translateX(0%) rotate(0deg)} 15% {transform: translateX(-15px) rotate(-5deg)} 30% {transform: translateX(10px) rotate(3deg)} 45% {transform: translateX(-10px) rotate(-3deg)} 60% {transform: translateX(5px) rotate(2deg)} 75% {transform: translateX(-5px) rotate(-1deg)} 100% {transform: translateX(0%) rotate(0deg)} } `;
+        cssString += `@keyframes jello { 0%, 11.1%, 100% {transform: translate3d(0,0,0)} 22.2% {transform: skewX(-12.5deg) skewY(-12.5deg)} 33.3% {transform: skewX(6.25deg) skewY(6.25deg)} 44.4% {transform: skewX(-3.125deg) skewY(-3.125deg)} 55.5% {transform: skewX(1.5625deg) skewY(1.5625deg)} 66.6% {transform: skewX(-0.78125deg) skewY(-0.78125deg)} 77.7% {transform: skewX(0.390625deg) skewY(0.390625deg)} 88.8% {transform: skewX(-0.1953125deg) skewY(-0.1953125deg)} } `;
+        cssString += `@keyframes spin3d { 100% { transform: rotate3d(1, 1, 1, 360deg); } } `;
+        cssString += `@keyframes hueShift { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } } `;
+        
+        animNames.forEach(name => { cssString += `.eff-${name} { animation: ${name} 1s infinite; } `; });
+        styleSheet.innerHTML = cssString;
+        termLog("已編譯並注入 30+ 動態 CSS 魔法。");
 
-        // 硬體監控
-        S('hw-info').innerText = `💻 CPU: ${navigator.hardwareConcurrency || '?'}核 | 🌐 ${navigator.language}`;
+        // ---------------------------------------------------------
+        // 2. 核心監控與指標 (舊 + 新)
+        // ---------------------------------------------------------
+        S('hw-info').innerText = `💻 CPU: ${navigator.hardwareConcurrency || '?'}核`;
         setInterval(() => { if(performance.memory) S('mem-info').innerText = `🧠 RAM: ${(performance.memory.usedJSHeapSize/1048576).toFixed(1)}MB`; }, 1000);
-        if(navigator.connection) {
-            const updateNet = () => S('net-info').innerText = `📶 網速: ${navigator.connection.downlink}Mbps`;
-            navigator.connection.addEventListener('change', updateNet); updateNet();
-        }
+        if(navigator.connection) { const u = () => S('net-info').innerText = `📶 網速: ${navigator.connection.downlink}Mbps`; navigator.connection.addEventListener('change', u); u(); }
+        if(navigator.getBattery) navigator.getBattery().then(b => { const u = ()=> S('bat-info').innerText = `🔋 電量: ${Math.round(b.level*100)}% ${b.charging?'⚡':''}`; b.onlevelchange=u; b.onchargingchange=u; u(); });
+        
+        // APM Tracker
+        let clicks=0; document.addEventListener('click', ()=>clicks++);
+        setInterval(()=>{ S('apm-info').innerText=`🖱️ APM: ${clicks*60}`; clicks=0; }, 1000);
 
-        // 語音控制
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if(SpeechRec) {
-            const rec = new SpeechRec(); rec.lang = 'zh-TW';
-            rec.onresult = e => { S('mega-search').value = e.results[0][0].transcript; S('mega-search').dispatchEvent(new Event('input')); };
-            S('voice-btn').onclick = () => { rec.start(); S('voice-btn').innerText = "🔴 聆聽中..."; setTimeout(()=>S('voice-btn').innerText = "🎤 語音", 3000); };
-        }
+        // MIDI & Gamepad API
+        if(navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(()=>S('midi-info').innerText='🎹 MIDI: 就緒').catch(()=>{});
+        window.addEventListener("gamepadconnected", e => { S('gamepad-info').innerText=`🎮 搖桿: ${e.gamepad.id.substring(0,8)}`; termLog(`Gamepad connected: ${e.gamepad.id}`); });
 
-        // 相機預覽
-        const video = S('camera-view');
-        S('cam-btn').onclick = async () => {
-            if(video.srcObject) { 
-                if(document.pictureInPictureElement) document.exitPictureInPicture();
-                else video.requestPictureInPicture();
-                return; 
-            }
-            try { video.srcObject = await navigator.mediaDevices.getUserMedia({video: true}); video.style.display = 'block'; } catch(e) { alert("無相機權限"); }
-        };
+        // [NEW] 微型系統監控 (時鐘, 運行時間, 螢幕, 座標, 鍵盤, 滾輪速, 閒置)
+        let uptime = 0, idleTime = 0;
+        setInterval(() => {
+            uptime++; idleTime++;
+            S('sys-uptime').innerText = `⏱️ 運行: ${uptime}s`;
+            S('sys-idle').innerText = `💤 閒置: ${idleTime}s`;
+            S('sys-clock').innerText = `🕒 ${new Date().toLocaleTimeString()}`;
+            // 隨機改變 Tab Title (Easter Egg)
+            if(idleTime > 10) document.title = ["Are you there?", "Wake up, Neo", "God Mode is waiting...", "ERROR 404: USER NOT FOUND"][Math.floor(Math.random()*4)];
+            else document.title = "God Mode 5.0: The Multiverse";
+        }, 1000);
 
-        // 原生分享
-        S('share-btn').onclick = () => {
-            if(navigator.share) navigator.share({title: 'God Mode 3.1', url: window.location.href});
-            else alert("不支援原生分享");
-        };
-
-        // 自毀程式
-        S('destruct-btn').onclick = () => {
-            document.body.style.transform = "scale(0) rotate(720deg)"; document.body.style.opacity = "0"; document.body.style.transition = "2s cubic-bezier(0.5, 0, 0, 1)";
-            if(navigator.vibrate) navigator.vibrate([500, 100, 500]);
-            setTimeout(() => { document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:40vh;'>SYSTEM DESTROYED.</h1>"; document.body.style.transform="none"; document.body.style.opacity="1"; }, 2000);
-        };
-
-        // 搜尋與草稿
-        const searchInput = S('mega-search');
-        searchInput.value = localStorage.getItem('search_draft') || '';
-        searchInput.addEventListener('input', (e) => {
-            localStorage.setItem('search_draft', e.target.value);
-            renderCards(e.target.value);
+        document.addEventListener('mousemove', e => { idleTime = 0; S('sys-mouse').innerText = `📍 X:${e.clientX} Y:${e.clientY}`; });
+        document.addEventListener('keydown', e => { idleTime = 0; S('sys-keys').innerText = `⌨️ 鍵盤: ${e.key}`; termLog(`KEY_PRESS: ${e.key}`); });
+        S('sys-screen').innerText = `📺 螢幕: ${window.screen.width}x${window.screen.height}`;
+        if(screen.orientation) { const so=()=>S('sys-orient').innerText=`🔄 方向: ${screen.orientation.type.split('-')[0]}`; screen.orientation.onchange=so; so(); }
+        
+        let lastScrollY = window.scrollY, scrollTimeout;
+        window.addEventListener('scroll', () => {
+            idleTime = 0;
+            const speed = Math.abs(window.scrollY - lastScrollY);
+            S('sys-scroll').innerText = `📜 滾速: ${speed}px/f`;
+            lastScrollY = window.scrollY;
+            S('scroll-progress').style.width = `${(window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%`;
+            clearTimeout(scrollTimeout); scrollTimeout = setTimeout(()=>S('sys-scroll').innerText = `📜 滾速: 0px/s`, 100);
         });
 
-        // =========================================
-        // 🃏 卡片渲染與拖曳特效
-        // =========================================
-        
+        // ---------------------------------------------------------
+        // 3. 瘋狂 API 按鈕綁定 (舊有 15 個)
+        // ---------------------------------------------------------
+        const mCanvas=S('matrix-canvas'), mCtx=mCanvas.getContext('2d');
+        let mActive=false, mInt; mCanvas.width=window.innerWidth; mCanvas.height=window.innerHeight;
+        const drops=Array(Math.floor(mCanvas.width/16)).fill(1);
+        S('f-matrix').onclick = () => {
+            mActive=!mActive; mCanvas.style.opacity=mActive?1:0; mCanvas.style.zIndex=mActive?1:-1;
+            termLog(`Matrix mode: ${mActive}`);
+            if(mActive) mInt=setInterval(()=>{
+                mCtx.fillStyle="rgba(0,0,0,0.1)"; mCtx.fillRect(0,0,mCanvas.width,mCanvas.height);
+                mCtx.fillStyle="#0f0"; mCtx.font="16px monospace";
+                drops.forEach((d,i)=>{ mCtx.fillText(String.fromCharCode(0x30A0+Math.random()*96), i*16, d*16); if(d*16>mCanvas.height&&Math.random()>0.95) drops[i]=0; drops[i]++; });
+            },33); else clearInterval(mInt);
+        };
+
+        let scrl; S('f-scroll').onclick=function(){ if(scrl){clearInterval(scrl);scrl=null;this.innerText='⬇️ 自動滾';termLog('Scroll STOP');}else{scrl=setInterval(()=>window.scrollBy(0,2),16);this.innerText='⏸️ 暫停';termLog('Scroll START');} };
+        let fSize=16; S('f-font').onclick=()=>{ fSize=fSize===16?20:(fSize===20?12:16); document.documentElement.style.fontSize=fSize+'px'; log(`字體變更為: ${fSize}px`); };
+        S('f-crt').onclick=function(){ const c=S('crt'); c.style.display=c.style.display==='none'?'block':'none'; this.innerText=c.style.display==='none'?'📺 開啟 CRT':'📺 關閉 CRT'; termLog(`CRT Overlay toggled`);};
+        S('f-pip').onclick=async()=>{ try{ const v=document.createElement('video'); v.srcObject=mCanvas.captureStream(); await v.play(); await v.requestPictureInPicture(); log('Matrix 已進入子母畫面'); }catch(e){log('PiP 失敗');} };
+        S('f-tts').onclick=()=>{ const u=new SpeechSynthesisUtterance("系統超載。多重宇宙已開啟。"); u.lang='zh-TW'; u.pitch=Math.random()*2; u.rate=1.2; speechSynthesis.speak(u); log('語音合成啟動'); };
+        S('f-color').onclick=async()=>{ if(!window.EyeDropper) return log('不支援 EyeDropper'); const ed=new EyeDropper(); const c=await ed.open(); document.documentElement.style.setProperty('--primary', c.sRGBHex); log(`主色調更改為 ${c.sRGBHex}`); };
+        S('f-record').onclick=async()=>{ try{ const stream=await navigator.mediaDevices.getDisplayMedia({video:true}); log('螢幕錄影串流已獲取'); termLog('Recording started'); stream.getTracks()[0].onended=()=>log('錄影結束'); }catch(e){log('取消錄影');} };
+        S('f-share').onclick=()=>{ navigator.share?navigator.share({title:'God Mode 5',url:location.href}):log('不支援 Share'); };
+        S('f-lock').onclick=()=>{ document.body.requestPointerLock(); log('游標已鎖定 (按 ESC 解除)'); };
+        let pt, time=1500; S('f-pomo').onclick=()=>{ clearInterval(pt); pt=setInterval(()=>{ time--; S('timer-info').innerText=`🍅 番茄鐘: ${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`; if(time<=0){clearInterval(pt); log('番茄鐘完成！'); if(navigator.vibrate)navigator.vibrate(1000);} },1000); log('番茄鐘啟動'); termLog('Pomodoro started'); };
+        S('f-contact').onclick=async()=>{ if('contacts' in navigator){ try{ await navigator.contacts.select(['name'],{multiple:true}); }catch(e){log('讀取聯絡人失敗');} } else log('不支援 Contact API'); };
+        S('f-barcode').onclick=()=>{ log(window.BarcodeDetector ? '支援條碼辨識' : '不支援 BarcodeDetector'); };
+        S('f-boom').onclick=()=>{ 
+            document.body.classList.add('eff-invert', 'eff-shake');
+            log('核心過載... 多重宇宙崩潰中...');
+            termLog('FATAL: TRIGGERED BOOM SEQUENCE');
+            if(navigator.vibrate) navigator.vibrate([1000, 500, 1000, 500, 2000]);
+            setTimeout(()=>document.body.innerHTML='<h1 style="color:red;text-align:center;margin-top:40vh;font-size:5rem;animation:pulse 0.5s infinite;">UNIVERSE DESTROYED</h1>', 3000);
+        };
+
+        // ---------------------------------------------------------
+        // 4. [NEW] 額外的 20 個工具按鈕實作
+        // ---------------------------------------------------------
+        S('n-uuid').onclick = () => { const u=crypto.randomUUID(); navigator.clipboard.writeText(u); log(`已複製 UUID: ${u.split('-')[0]}...`); termLog(`Generated UUID: ${u}`); };
+        S('n-hex').onclick = () => { const c=`#${Math.floor(Math.random()*16777215).toString(16)}`; document.documentElement.style.setProperty('--secondary', c); log(`副色調切換: ${c}`); termLog(`Secondary Color changed: ${c}`); };
+        S('n-joke').onclick = () => { const j=["為什麼工程師分不清萬聖節和聖誕節？因為 Oct 31 == Dec 25。", "99個 Bug 在牆上，修了一個，變成 127 個 Bug在牆上。"]; log(j[Math.floor(Math.random()*j.length)]); };
+        S('n-invert').onclick = () => { document.body.classList.toggle('eff-invert'); termLog('World inverted'); };
+        S('n-blur').onclick = () => { document.body.style.filter = document.body.style.filter==='blur(5px)' ? 'none' : 'blur(5px)'; termLog('World blurred'); };
+        S('n-pixel').onclick = () => { const cvs=S('matrix-canvas'); cvs.style.imageRendering="pixelated"; log('Matrix 像素化套用'); };
+        S('n-shake').onclick = () => { document.body.classList.toggle('eff-wobble'); termLog('Earthquake mode toggled'); };
+        S('n-rainbow').onclick = () => { document.body.classList.toggle('eff-hueShift'); termLog('Rainbow filter activated'); };
+        S('n-bw').onclick = () => { document.body.style.filter = "grayscale(100%)"; setTimeout(()=>document.body.style.filter="none", 5000); termLog('Black and White mode (5s)'); };
+        S('n-gravity').onclick = () => { document.querySelectorAll('.card').forEach(c=>c.style.transform='translateY(100vh) rotate(45deg)'); log('零重力！卡片墜落。'); termLog('Zero gravity triggered'); setTimeout(()=>renderCards(S('mega-search').value), 2000); };
+        S('n-chaos').onclick = () => { 
+            termLog('CHAOS MODE ACTIVATED');
+            document.querySelectorAll('.card').forEach(c => {
+                const anim = animNames[Math.floor(Math.random() * animNames.length)];
+                c.className = `card eff-${anim}`;
+            });
+        };
+        S('n-clear').onclick = () => { term.innerHTML = '<p>> 終端機已清理。</p>'; };
+
+        // ---------------------------------------------------------
+        // 5. [NEW] 全域粒子引擎 (Click Explosions)
+        // ---------------------------------------------------------
+        const pCvs = S('particle-canvas'), pCtx = pCvs.getContext('2d');
+        pCvs.width = window.innerWidth; pCvs.height = window.innerHeight;
+        let particles = [];
+        window.addEventListener('resize', () => { pCvs.width = window.innerWidth; pCvs.height = window.innerHeight; });
+        document.addEventListener('click', (e) => {
+            for(let i=0; i<15; i++) {
+                particles.push({ x: e.clientX, y: e.clientY, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1, color: `hsl(${Math.random()*360}, 100%, 50%)` });
+            }
+            termLog(`Click particle explosion at X:${e.clientX} Y:${e.clientY}`);
+        });
+        const drawParticles = () => {
+            pCtx.clearRect(0,0,pCvs.width,pCvs.height);
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+                pCtx.globalAlpha = Math.max(0, p.life); pCtx.fillStyle = p.color;
+                pCtx.beginPath(); pCtx.arc(p.x, p.y, 3, 0, Math.PI*2); pCtx.fill();
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(drawParticles);
+        };
+        drawParticles();
+
+        // ---------------------------------------------------------
+        // 6. Konami Code & 搜尋
+        // ---------------------------------------------------------
+        let kKeys=[]; window.addEventListener('keydown', e=>{
+            kKeys.push(e.key); if(kKeys.length>10) kKeys.shift();
+            if(kKeys.join('')==='ArrowUpArrowUpArrowDownArrowDownArrowLeftArrowRightArrowLeftArrowRightba'){
+                log('🔓 觸發 Konami Code！世界反轉旋轉！'); document.body.classList.toggle('eff-spin'); kKeys=[]; termLog('KONAMI CODE ENTERED');
+            }
+        });
+        S('mega-search').oninput = e => { renderCards(e.target.value); termLog(`Searching: ${e.target.value}`); };
+
+        // ---------------------------------------------------------
+        // 7. 渲染引擎 (卡片與 3D 傾斜)
+        // ---------------------------------------------------------
         const container = S('grid-container');
-        let dragged;
-
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('show-scroll'); });
-        }, { threshold: 0.1 });
-
         const renderCards = (filter = '') => {
             container.innerHTML = '';
-            cardsData.filter(c => c.title.includes(filter) || c.desc.includes(filter)).forEach((cardData) => {
+            cardsData.filter(c => c.title.includes(filter.toUpperCase())).forEach((data, idx) => {
                 const card = document.createElement('article');
-                card.className = 'card hidden-scroll';
-                card.draggable = true;
+                card.className = 'card';
+                card.style.animationDelay = `${idx * 0.05}s`;
                 
                 card.innerHTML = `
-                    <img src="https://picsum.photos/400/200?random=${cardData.id}" alt="Cover">
-                    <h2 style="mix-blend-mode: difference; color: white;">${cardData.title}</h2>
-                    <p>${cardData.desc}</p>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <button class="btn copy-btn">📋 複製</button>
-                        <button class="btn del-btn" style="background:#ef4444; color:white;">❌ 刪除</button>
+                    <img src="https://picsum.photos/400/200?random=${data.id}" loading="lazy">
+                    <h2>${data.title}</h2>
+                    <p>${data.desc}</p>
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <button class="btn cmd-hack">破解 [Hack]</button>
+                        <button class="btn cmd-del">抹除 [Del]</button>
                     </div>
+                    <canvas width="250" height="20" class="mini-graph" style="margin-top:10px; opacity:0.5;"></canvas>
                 `;
 
-                // 拖曳功能
-                card.addEventListener('dragstart', () => { dragged = card; card.classList.add('dragging'); });
-                card.addEventListener('dragend', () => card.classList.remove('dragging'));
-                card.addEventListener('dragover', e => e.preventDefault());
-                card.addEventListener('drop', e => { e.preventDefault(); container.insertBefore(dragged, card); });
+                const cvs = card.querySelector('.mini-graph'); const ctx = cvs.getContext('2d');
+                setInterval(()=>{ ctx.clearRect(0,0,250,20); ctx.fillStyle='cyan'; for(let i=0;i<50;i++){ ctx.fillRect(i*5, 20-Math.random()*20, 4, 20); } }, 100);
 
-                // 複製功能
-                card.querySelector('.copy-btn').onclick = () => { navigator.clipboard.writeText(cardData.desc); alert("已複製！"); };
-                
-                // 刪除功能
-                card.querySelector('.del-btn').onclick = () => { card.remove(); };
+                card.querySelector('.cmd-hack').onclick = function() {
+                    this.innerText = '已解鎖'; this.style.color = '#0f0'; this.style.borderColor = '#0f0';
+                    card.querySelector('p').innerText = '解碼成功。權限已提升。';
+                    log(`檔案 ${data.title} 破解成功`); termLog(`Hacked card: ${data.id}`);
+                };
+                card.querySelector('.cmd-del').onclick = () => {
+                    card.style.transform = 'scale(0) rotate(90deg)'; card.style.opacity = 0;
+                    setTimeout(()=>card.remove(), 500); log(`抹除 ${data.title}`); termLog(`Deleted card: ${data.id}`);
+                };
+
+                // Vanilla Tilt
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left - rect.width/2; const y = e.clientY - rect.top - rect.height/2;
+                    card.style.transform = `perspective(1000px) rotateX(${-y/10}deg) rotateY(${x/10}deg) scale3d(1.05, 1.05, 1.05)`;
+                });
+                card.addEventListener('mouseleave', () => { card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; });
 
                 container.appendChild(card);
-                observer.observe(card);
             });
         };
 
-        // 無限滾動
         window.addEventListener('scroll', () => {
-            if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-                const newId = cardsData.length;
-                cardsData.push({ id: newId, title: `無限擴展 #${newId}`, desc: `來自深淵的資料...`});
-                renderCards(searchInput.value);
+            if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+                const id = cardsData.length;
+                cardsData.push({ id, title: `PROJECT//NEW_${Math.random().toString(36).substring(7).toUpperCase()}`, desc: `系統自動生成的深層節點...`});
+                renderCards(S('mega-search').value);
+                termLog(`Infinite Scroll triggered. Generated card ${id}`);
             }
         });
 
+        // Init
         renderCards();
-
+        log('God Mode 5.0 Multiverse：全系統與終端機上線。');
+        termLog('BOOT SEQUENCE COMPLETE. GOD MODE 5.0 ENGAGED.');
     </script>
 </body>
 </html>

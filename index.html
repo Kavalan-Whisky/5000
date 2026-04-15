@@ -3,100 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的大型 GitHub 專案</title>
+    <title>終極數據儀表板 Ultra Pro Max</title>
     <style>
-        /* CSS 樣式區塊 */
+        /* [Feature 18: 自訂炫酷捲軸] */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
+
         :root {
-            --bg-color: #f4f4f9;
-            --text-color: #333;
-            --card-bg: #fff;
-            --primary: #6200ea;
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --transition: all 0.3s ease;
         }
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #f4f4f9;
-            --card-bg: #1e1e1e;
-            --primary: #bb86fc;
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --card-bg: #1e293b;
+            --primary: #818cf8;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            transition: all 0.3s ease;
+            margin: 0; padding: 0;
+            transition: background-color 0.5s;
+            overflow-x: hidden;
         }
+
+        /* [Feature 20: 動態漸層頭部背景] */
         header {
-            background-color: var(--primary);
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 1rem 5%;
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            font-weight: bold;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
+
+        /* [Feature 2: 網頁捲動進度條] */
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 4px;
+            background: #ffeb3b; width: 0%; z-index: 1000;
+            transition: width 0.1s;
+        }
+
+        .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        
+        button, input[type="color"] {
+            padding: 0.5rem 1rem; border: none; border-radius: 6px;
+            cursor: pointer; background: rgba(255,255,255,0.2); color: white;
+            font-weight: bold; backdrop-filter: blur(5px); transition: var(--transition);
+        }
+        button:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
+
         .container {
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            padding: 2rem 5%; display: grid; gap: 1.5rem;
+            /* Grid 預設 */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         }
+        /* [Feature 4: Grid/List 視圖切換] */
+        .container.list-view { grid-template-columns: 1fr; }
+
+        /* [Feature 5: 3D 懸浮傾斜特效準備] */
         .card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: var(--card-bg); padding: 1.5rem;
+            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform-style: preserve-3d; transition: transform 0.1s, box-shadow 0.3s;
+            position: relative;
         }
-        /* 這裡可以繼續擴充數百行的 CSS 動畫與 RWD 設置 */
+        .card:hover { box-shadow: 0 15px 25px rgba(0,0,0,0.2); }
+        .card h2 { transform: translateZ(30px); margin-top: 0; color: var(--primary); }
+        .card p { transform: translateZ(20px); }
+        
+        .card-actions { margin-top: 1rem; display: flex; gap: 10px; transform: translateZ(40px); }
+        .card-actions button { background: var(--primary); font-size: 0.8rem; }
+
+        /* [Feature 6: Skeleton 骨架屏] */
+        .skeleton { background: #e2e8f0; border-radius: 4px; animation: pulse 1.5s infinite; }
+        [data-theme="dark"] .skeleton { background: #334155; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        /* [Feature 7: 回到頂部按鈕] */
+        #top-btn {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--primary); color: white; border-radius: 50%;
+            width: 50px; height: 50px; display: none; font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 100;
+        }
+
+        /* [Feature 8: Toast 系統通知] */
+        #toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 999; }
+        .toast {
+            background: var(--text-color); color: var(--bg-color);
+            padding: 10px 20px; border-radius: 8px; margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s forwards, fadeOut 0.3s 2.7s forwards;
+        }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+        /* [Feature 12: 自訂右鍵選單] */
+        #context-menu {
+            position: absolute; background: var(--card-bg); border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); padding: 10px 0;
+            display: none; z-index: 1000; border: 1px solid var(--primary);
+        }
+        #context-menu div { padding: 8px 20px; cursor: pointer; transition: 0.2s; }
+        #context-menu div:hover { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
+    <div id="progress-bar"></div>
+    
+    <div id="context-menu">
+        <div onclick="document.body.style.transform='rotate(180deg)'">翻轉網頁 (驚喜)</div>
+        <div onclick="document.body.style.transform='none'">還原網頁</div>
+        <div onclick="alert('你點擊了自訂選單！')">打個招呼</div>
+    </div>
+
     <header>
-        <h1>數據儀表板</h1>
-        <button id="theme-toggle">切換深色模式</button>
+        <div>
+            <h1 id="typewriter"></h1>
+            <div id="clock" style="font-size: 0.9rem; opacity: 0.8;"></div>
+        </div>
+        <div class="header-controls">
+            <input type="color" id="bg-color-picker" title="改變背景顏色">
+            <button id="view-toggle">切換列表模式</button>
+            <button id="shuffle-btn">🎲 洗牌</button>
+            <button id="theme-toggle">🌙 暗色</button>
+        </div>
     </header>
 
-    <div class="container" id="data-container">
-        </div>
+    <main class="container" id="data-container"></main>
+
+    <button id="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
+    <div id="toast-container"></div>
 
     <script>
-        // JavaScript 邏輯區塊
+        // --- 基礎設定與資料 ---
+        const DOM = {
+            container: document.getElementById('data-container'),
+            typewriter: document.getElementById('typewriter'),
+            clock: document.getElementById('clock'),
+            colorPicker: document.getElementById('bg-color-picker')
+        };
+        
+        let mockData = Array.from({ length: 12 }, (_, i) => ({
+            id: i + 1,
+            title: `終極專案 ${i + 1} 號`,
+            description: `這是超炫酷專案的介紹內容。包含許多互動特效。`,
+            liked: JSON.parse(localStorage.getItem('likes') || '{}')[i+1] || false // [Feature 11]
+        }));
 
-        // 1. 深色模式切換邏輯
-        const themeToggle = document.getElementById('theme-toggle');
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
+        // --- 功能實作區 ---
+
+        // [Feature 17: 按鈕點擊音效]
+        const playBeep = () => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.1);
+            } catch(e) {}
+        };
+        document.body.addEventListener('click', (e) => {
+            if(e.target.tagName === 'BUTTON') playBeep();
         });
 
-        // 2. 模擬資料載入 (這裡是你擴充行數的絕佳位置)
-        const mockData = [
-            { id: 1, title: '專案 A', description: '這是專案 A 的詳細描述。' },
-            { id: 2, title: '專案 B', description: '這是專案 B 的詳細描述。' },
-            { id: 3, title: '專案 C', description: '這是專案 C 的詳細描述。' }
-            // 你可以在這裡放入數千筆真實資料！
-        ];
+        // [Feature 8: Toast 系統通知]
+        const showToast = (msg) => {
+            const toast = document.createElement('div');
+            toast.className = 'toast'; toast.innerText = msg;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
 
-        const container = document.getElementById('data-container');
-        mockData.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <h2>${item.title}</h2>
-                <p>${item.description}</p>
-            `;
-            container.appendChild(card);
+        // [Feature 3: 打字機特效]
+        const text = "終極數據儀表板 Ultra";
+        let textIdx = 0;
+        const typeWriter = () => {
+            if (textIdx < text.length) {
+                DOM.typewriter.innerHTML += text.charAt(textIdx);
+                textIdx++;
+                setTimeout(typeWriter, 100);
+            }
+        };
+        typeWriter();
+
+        // [Feature 13: 即時數位時鐘]
+        setInterval(() => {
+            DOM.clock.innerText = new Date().toLocaleString('zh-TW');
+        }, 1000);
+
+        // [Feature 2: 網頁捲動進度條] & [Feature 7: 回到頂部按鈕]
+        window.onscroll = () => {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById('progress-bar').style.width = (winScroll / height) * 100 + "%";
+            document.getElementById('top-btn').style.display = winScroll > 300 ? "block" : "none";
+        };
+
+        // [Feature 12: 自訂右鍵選單]
+        const contextMenu = document.getElementById('context-menu');
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.style.top = `${e.pageY}px`;
         });
+        window.addEventListener('click', () => contextMenu.style.display = 'none');
+
+        // [Feature 1: 自訂背景顏色]
+        DOM.colorPicker.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--bg-color', e.target.value);
+        });
+
+        // [Feature 4: Grid/List 視圖切換]
+        document.getElementById('view-toggle').addEventListener('click', () => {
+            DOM.container.classList.toggle('list-view');
+            showToast('已切換排版視圖');
+        });
+
+        // [Feature 14: 隨機洗牌]
+        document.getElementById('shuffle-btn').addEventListener('click', () => {
+            mockData.sort(() => Math.random() - 0.5);
+            renderData();
+            showToast('資料已重新洗牌 🎲');
+        });
+
+        // 主題切換
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            showToast(`已切換為 ${isDark ? '亮色' : '暗色'} 模式`);
+        });
+
+        // --- 核心渲染與卡片功能 ---
+        
+        // [Feature 6: Skeleton 載入模擬]
+        const showSkeleton = () => {
+            DOM.container.innerHTML = Array(6).fill(`<div class="card skeleton" style="height:150px"></div>`).join('');
+        };
+
+        const renderData = () => {
+            const fragment = document.createDocumentFragment();
+            mockData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h2>${item.title}</h2>
+                    <p id="desc-${item.id}">${item.description}</p>
+                    <div class="card-actions">
+                        <button onclick="copyText(${item.id})">📋 複製</button>
+                        <button onclick="toggleLike(${item.id})" id="like-${item.id}">${item.liked ? '❤️ 已收' : '🤍 收藏'}</button>
+                        <button onclick="speakText('${item.title}')">🔊 朗讀</button>
+                        <button onclick="deleteCard(${item.id})" style="background: #ef4444;">🗑️ 刪除</button>
+                    </div>
+                `;
+
+                // [Feature 5: 3D 懸浮傾斜特效實作]
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2; const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                card.addEventListener('mouseleave', () => card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`);
+
+                fragment.appendChild(card);
+            });
+            DOM.container.innerHTML = '';
+            DOM.container.appendChild(fragment);
+        };
+
+        // 卡片內部功能函數
+        // [Feature 9: 一鍵複製]
+        window.copyText = (id) => {
+            const text = document.getElementById(`desc-${id}`).innerText;
+            navigator.clipboard.writeText(text);
+            showToast('已複製到剪貼簿！📋');
+        };
+
+        // [Feature 10 & 11: 愛心與記憶]
+        window.toggleLike = (id) => {
+            const item = mockData.find(d => d.id === id);
+            item.liked = !item.liked;
+            const likes = JSON.parse(localStorage.getItem('likes') || '{}');
+            likes[id] = item.liked;
+            localStorage.setItem('likes', JSON.stringify(likes));
+            document.getElementById(`like-${id}`).innerText = item.liked ? '❤️ 已收' : '🤍 收藏';
+            showToast(item.liked ? '已加入收藏！' : '已取消收藏');
+        };
+
+        // [Feature 15: 文字轉語音 TTS]
+        window.speakText = (text) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW';
+            speechSynthesis.speak(utterance);
+            showToast('正在朗讀... 🔊');
+        };
+
+        // [Feature 16: 刪除卡片]
+        window.deleteCard = (id) => {
+            mockData = mockData.filter(d => d.id !== id);
+            renderData();
+            showToast('卡片已刪除 🗑️');
+        };
+
+        // [Feature 19: Konami Code 彩蛋]
+        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiPosition = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiPosition]) {
+                konamiPosition++;
+                if (konamiPosition === konamiCode.length) {
+                    showToast('🎮 觸發隱藏彩蛋：全螢幕派對模式！');
+                    document.body.style.animation = "gradientBG 1s infinite alternate";
+                    konamiPosition = 0;
+                }
+            } else { konamiPosition = 0; }
+        });
+
+        // 初始化執行
+        showSkeleton();
+        setTimeout(renderData, 1500); // 模擬網路延遲 1.5 秒後顯示資料
+
     </script>
 </body>
 </html>

@@ -1,367 +1,275 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>神級數據儀表板 God Mode</title>
+    <title>宇宙大爆炸 God Mode 3.1 完全體</title>
     <style>
-        /* --- 基礎變數與排版 --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-
+        /* 基礎與主題設定 */
         :root {
-            --bg-color: #f0fdf4; --text-color: #0f172a; --card-bg: #ffffff;
-            --primary: #10b981; --primary-hover: #059669; --font-size: 16px;
-            --transition: all 0.3s ease;
+            --bg-color: #e2e8f0; --text-color: #0f172a; --card-bg: rgba(255, 255, 255, 0.7);
+            --primary: #8b5cf6; --neon-shadow: 0 0 0 transparent; --font-family: system-ui;
         }
         [data-theme="dark"] {
-            --bg-color: #020617; --text-color: #f8fafc; --card-bg: #0f172a;
-            --primary: #34d399; --primary-hover: #10b981;
+            --bg-color: #020617; --text-color: #e2e8f0; --card-bg: rgba(15, 23, 42, 0.7);
+            --primary: #c084fc; --neon-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
         }
+        
+        /* 動態字體與背景雜訊 */
+        html { font-size: 16px; transition: font-size 0.3s; }
+        body { font-family: var(--font-family); background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; overflow-x: hidden; transition: background 0.5s, color 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E'); pointer-events: none; z-index: 9999; }
 
-        body {
-            font-family: system-ui, sans-serif; background-color: var(--bg-color);
-            color: var(--text-color); margin: 0; padding: 0; font-size: var(--font-size);
-            transition: background-color 0.5s; overflow-x: hidden; cursor: none; /* Feature 21 */
-        }
-
-        /* [Feature 21: 自訂光劍滑鼠游標] */
-        #custom-cursor {
-            position: fixed; top: 0; left: 0; width: 20px; height: 20px;
-            border: 2px solid var(--primary); border-radius: 50%;
-            pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s; box-shadow: 0 0 10px var(--primary);
-        }
+        /* Matrix 畫布 */
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0; transition: opacity 1s; pointer-events: none; }
 
         header {
-            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364);
-            background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: white;
-            padding: 1rem 3%; position: sticky; top: 0; z-index: 100;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+            position: sticky; top: 0; z-index: 1000; padding: 1rem 2rem;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
         }
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        /* 標題特效 */
+        .glitch { position: relative; display: inline-block; font-weight: 900; font-size: 1.5rem; margin: 0;}
+        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
+        .glitch::before { left: 2px; text-shadow: -2px 0 red; animation: glitch-anim 2s infinite linear alternate-reverse; }
+        .glitch::after { left: -2px; text-shadow: -2px 0 blue; animation: glitch-anim 3s infinite linear alternate-reverse; }
+        @keyframes glitch-anim { 0% { clip-path: inset(20% 0 80% 0); } 20% { clip-path: inset(60% 0 10% 0); } 40% { clip-path: inset(40% 0 50% 0); } 60% { clip-path: inset(80% 0 5% 0); } 100% { clip-path: inset(10% 0 60% 0); } }
+        .blink::after { content: '█'; animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* 按鈕樣式與液態邊框 */
+        .btn, input {
+            padding: 8px 12px; border: none; border-radius: 8px; background: var(--bg-color); color: var(--text-color); cursor: pointer;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.1), -3px -3px 6px rgba(255,255,255,0.5); transition: 0.3s; box-sizing: border-box; font-weight: bold; font-size: 0.9rem;
+        }
+        [data-theme="dark"] .btn, [data-theme="dark"] input { box-shadow: 3px 3px 6px rgba(0,0,0,0.5), -3px -3px 6px rgba(255,255,255,0.05); }
+        .btn:hover { box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), inset -3px -3px 6px rgba(255,255,255,0.5); text-shadow: var(--neon-shadow); transform: translateY(-2px); }
+        .liquid { animation: liquid-border 4s ease-in-out infinite; border: 2px solid var(--primary); }
+        @keyframes liquid-border { 0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; } 50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; } }
+
+        /* 卡片網格與特效 */
+        .container { padding: 2rem; display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); perspective: 1000px; }
         
-        /* [Feature 35: 水波紋按鈕] */
-        button, input[type="text"] {
-            padding: 0.5rem 1rem; border: none; border-radius: 6px;
-            cursor: none; background: rgba(255,255,255,0.2); color: white;
-            font-weight: bold; position: relative; overflow: hidden;
+        .card {
+            background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);
+            resize: both; overflow: hidden; position: relative; transition: transform 0.5s, opacity 0.5s; cursor: grab;
         }
-        input[type="text"] { background: var(--card-bg); color: var(--text-color); }
-        button:hover { background: rgba(255,255,255,0.4); transform: translateY(-2px); }
-        .ripple { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.6); transform: scale(0); animation: ripple-anim 0.6s linear; }
-        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+        .card.dragging { opacity: 0.5; cursor: grabbing; transform: scale(1.05); }
+        .hidden-scroll { opacity: 0; transform: translateY(50px) rotateX(-20deg); }
+        .show-scroll { opacity: 1; transform: translateY(0) rotateX(0); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        .card img { width: 100%; border-radius: 10px; filter: grayscale(100%); transition: 0.5s; object-fit: cover; height: 150px; }
+        .card:hover img { filter: grayscale(0%); transform: scale(1.05); }
 
-        /* [Feature 40: 自訂浮動提示 Tooltip] */
-        [data-tooltip]:hover::after {
-            content: attr(data-tooltip); position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
-            background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 1000;
-        }
-
-        /* 卡片與 3D 翻轉 (Feature 30) */
-        .container { padding: 2rem 5%; display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-        .flip-card { background-color: transparent; height: 350px; perspective: 1000px; }
-        .flip-card-inner {
-            position: relative; width: 100%; height: 100%; text-align: left;
-            transition: transform 0.8s; transform-style: preserve-3d;
-        }
-        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
-        .flip-card-front, .flip-card-back {
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-            background-color: var(--card-bg); border-radius: 12px; padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; box-sizing: border-box;
-        }
-        .flip-card-back { transform: rotateY(180deg); background-color: var(--primary); color: white; }
+        .hud { font-family: monospace; font-size: 11px; color: var(--primary); display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 5px; }
         
-        .card-img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
-        .highlight { background-color: yellow; color: black; font-weight: bold; } /* Feature 32 */
-
-        /* [Feature 38: 駭客任務代碼雨] */
-        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0; transition: 1s; }
-        
-        /* [Feature 33: 閒置螢幕保護] */
-        #screensaver { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); color: white; display: flex; justify-content: center; align-items: center; font-size: 2rem; z-index: 9998; opacity: 0; pointer-events: none; transition: 1s; }
-
-        /* [Feature 29: 紙屑 Canvas] */
-        #confetti { position: fixed; top:0; left:0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; }
-
-        /* 系統通知 */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
-        .toast { background: var(--text-color); color: var(--bg-color); padding: 10px 20px; border-radius: 8px; margin-top: 10px; animation: fadeIn 0.3s forwards, fadeOut 0.3s 2.7s forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOut { to { opacity: 0; } }
-
-        /* [Feature 27: 快捷鍵提示選單] */
-        #shortcuts-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; color: #0f0; padding: 20px; border: 2px solid #0f0; z-index: 10001; display: none; font-family: monospace; }
+        /* 輔助區塊 */
+        .controls-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div id="custom-cursor"></div>
     <canvas id="matrix-canvas"></canvas>
-    <canvas id="confetti"></canvas>
-    <div id="screensaver">Zzz... 點擊或移動喚醒</div>
-    <div id="shortcuts-modal">
-        <h3>[系統快捷鍵]</h3>
-        <p><b>?</b> : 顯示/隱藏此選單</p>
-        <p><b>F</b> : 全螢幕</p>
-        <p><b>M</b> : 駭客任務模式</p>
-        <p><b>D</b> : 暗黑模式</p>
-    </div>
 
-    <header>
+    <header id="main-header">
         <div>
-            <h1>God Mode Dashboard <span id="views-counter" style="font-size:12px; color:#aaa;"></span></h1>
-            <div style="font-size: 0.8rem; display:flex; gap: 15px;">
-                <span id="clock"></span>
-                <span id="battery-status">🔋 讀取中...</span> <span id="network-status">📶 連線中</span> </div>
+            <h1 class="glitch blink" data-text="OS: God Mode 3.1">OS: God Mode 3.1</h1>
+            <div class="hud">
+                <span id="hw-info">💻 CPU: --</span>
+                <span id="mem-info">🧠 RAM: --</span>
+                <span id="net-info">📶 網速: --</span>
+            </div>
         </div>
-        <div class="header-controls">
-            <input type="text" id="search-input" placeholder="搜尋專案..." data-tooltip="支援關鍵字高亮">
-            <button id="font-up" data-tooltip="字體放大">A+</button>
-            <button id="font-down" data-tooltip="字體縮小">A-</button>
-            <button id="export-btn" data-tooltip="下載 JSON">📥 匯出</button>
-            <button id="fullscreen-btn" data-tooltip="進入全螢幕">🗂 全螢幕</button>
-            <button id="auto-scroll-btn" data-tooltip="自動閱讀">⬇️ 滾動</button>
-            <button id="matrix-btn" data-tooltip="進入母體">🌧️ Matrix</button>
-            <button id="theme-toggle" data-tooltip="切換主題">🌙 暗色</button>
+        <div>
+            <div class="controls-group">
+                <button class="btn" id="font-up">A+</button>
+                <button class="btn" id="font-down">A-</button>
+                <button class="btn" id="theme-btn">🌙 切換主題</button>
+                <button class="btn" id="fullscreen-btn">🗂 全螢幕</button>
+                <button class="btn" id="auto-scroll-btn">⬇️ 自動滾動</button>
+                <button class="btn" id="matrix-btn" style="color:#0f0; border: 1px solid #0f0;">🌧️ Matrix</button>
+            </div>
+            <div class="controls-group">
+                <input type="text" id="mega-search" placeholder="搜尋並儲存..." class="liquid">
+                <button class="btn" id="voice-btn">🎤 語音</button>
+                <button class="btn" id="cam-btn">📷 相機</button>
+                <button class="btn" id="share-btn">📤 分享</button>
+                <button class="btn" id="destruct-btn" style="color:red;">⚠️ 自毀</button>
+            </div>
         </div>
     </header>
 
-    <main class="container" id="data-container"></main>
-    <div id="toast-container"></div>
+    <video id="camera-view" autoplay playsinline style="display:none; position:fixed; bottom:20px; right:20px; width:200px; border-radius:10px; z-index:1000; box-shadow: 0 10px 20px rgba(0,0,0,0.5);"></video>
+
+    <main class="container" id="grid-container"></main>
 
     <script>
-        // ==========================================
-        // 核心狀態與資料
-        // ==========================================
-        const DOM = { container: document.getElementById('data-container'), cursor: document.getElementById('custom-cursor'), search: document.getElementById('search-input') };
-        let searchQuery = '';
-        let mockData = Array.from({ length: 12 }, (_, i) => ({
-            id: i + 1,
-            title: `量子專案 ${i + 1} 號`,
-            description: `這是第 ${i+1} 個極機密專案。包含了許多前端無法想像的魔法。雙擊可以點讚！`,
-            img: `https://picsum.photos/seed/${Math.random()}/400/200`, // [Feature 31: 隨機封面]
-            liked: false
-        }));
+        const S = document.getElementById.bind(document);
+        let cardsData = Array.from({length: 12}, (_, i) => ({ id: i, title: `神話檔案 #${i}`, desc: `絕密資料庫載入中... 系統版本 ${Math.random().toString(36).substr(2, 5)}` }));
 
-        // ==========================================
-        // 新功能實作區
-        // ==========================================
+        // =========================================
+        // 🌟 強勢回歸：遺失的五大經典功能
+        // =========================================
 
-        // [Feature 8: Toast 通知]
-        const showToast = (msg) => {
-            const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-            document.getElementById('toast-container').appendChild(t);
-            setTimeout(() => t.remove(), 3000);
+        // 1. 字體縮放 (Font Resize)
+        let currentFont = 16;
+        S('font-up').onclick = () => { currentFont += 2; document.documentElement.style.fontSize = currentFont + 'px'; };
+        S('font-down').onclick = () => { currentFont = Math.max(12, currentFont - 2); document.documentElement.style.fontSize = currentFont + 'px'; };
+
+        // 2. 切換主題 (Theme Toggle) - 加上手動按鈕
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light'); // 自動偵測初始值
+        S('theme-btn').onclick = () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
         };
 
-        // [Feature 21: 自訂光劍游標]
-        document.addEventListener('mousemove', (e) => {
-            DOM.cursor.style.left = e.clientX + 'px';
-            DOM.cursor.style.top = e.clientY + 'px';
-        });
-        document.addEventListener('mousedown', () => DOM.cursor.style.transform = 'translate(-50%, -50%) scale(0.5)');
-        document.addEventListener('mouseup', () => DOM.cursor.style.transform = 'translate(-50%, -50%) scale(1)');
-
-        // [Feature 35: 水波紋按鈕特效]
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'BUTTON') {
-                const rect = e.target.getBoundingClientRect();
-                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-                const ripple = document.createElement('span');
-                ripple.className = 'ripple'; ripple.style.left = `${x}px`; ripple.style.top = `${y}px`;
-                e.target.appendChild(ripple);
-                setTimeout(() => ripple.remove(), 600);
-            }
-        });
-
-        // [Feature 36: 瀏覽次數統計]
-        let views = localStorage.getItem('page_views') || 0;
-        views++; localStorage.setItem('page_views', views);
-        document.getElementById('views-counter').innerText = `(總瀏覽: ${views} 次)`;
-
-        // [Feature 37: 動態分頁標題]
-        let originalTitle = document.title;
-        document.addEventListener('visibilitychange', () => {
-            document.title = document.hidden ? "😭 拜託快回來..." : originalTitle;
-        });
-
-        // [Feature 25: 網路狀態偵測]
-        const updateNetwork = () => {
-            const status = document.getElementById('network-status');
-            if (navigator.onLine) { status.innerText = '📶 連線正常'; status.style.color = '#fff'; } 
-            else { status.innerText = '⚠️ 失去連線'; status.style.color = '#ef4444'; showToast('網路已斷開！'); }
-        };
-        window.addEventListener('online', updateNetwork); window.addEventListener('offline', updateNetwork); updateNetwork();
-
-        // [Feature 26: 設備電量顯示 Battery API]
-        if ('getBattery' in navigator) {
-            navigator.getBattery().then(battery => {
-                const updateBat = () => document.getElementById('battery-status').innerText = `🔋 ${Math.round(battery.level * 100)}%`;
-                updateBat(); battery.addEventListener('levelchange', updateBat);
-            });
-        }
-
-        // [Feature 28: 無障礙字體縮放]
-        let currentFontSize = 16;
-        document.getElementById('font-up').onclick = () => { currentFontSize += 2; document.documentElement.style.setProperty('--font-size', `${currentFontSize}px`); };
-        document.getElementById('font-down').onclick = () => { currentFontSize = Math.max(12, currentFontSize - 2); document.documentElement.style.setProperty('--font-size', `${currentFontSize}px`); };
-
-        // [Feature 22: 全螢幕切換]
-        document.getElementById('fullscreen-btn').onclick = () => {
-            if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); fireConfetti(); }
-            else if (document.exitFullscreen) { document.exitFullscreen(); }
+        // 3. 全螢幕 (Fullscreen)
+        S('fullscreen-btn').onclick = () => {
+            if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
         };
 
-        // [Feature 23: 資料匯出 JSON]
-        document.getElementById('export-btn').onclick = () => {
-            const blob = new Blob([JSON.stringify(mockData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob); const a = document.createElement('a');
-            a.href = url; a.download = 'god_mode_data.json'; a.click(); URL.revokeObjectURL(url);
-            showToast('資料已成功匯出！');
+        // 4. 自動滾動 (Auto Scroll)
+        let autoScrollInt;
+        S('auto-scroll-btn').onclick = function() {
+            if(autoScrollInt) { clearInterval(autoScrollInt); autoScrollInt = null; this.innerText = '⬇️ 自動滾動'; }
+            else { autoScrollInt = setInterval(() => window.scrollBy(0, 1), 20); this.innerText = '⏸️ 暫停滾動'; }
         };
 
-        // [Feature 39: 自動往下捲動]
-        let scrollInterval;
-        document.getElementById('auto-scroll-btn').onclick = function() {
-            if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; this.innerText = '⬇️ 滾動'; }
-            else { scrollInterval = setInterval(() => window.scrollBy(0, 1), 20); this.innerText = '⏸️ 暫停'; }
-        };
-
-        // [Feature 33: 閒置螢幕保護]
-        let idleTimer;
-        const resetIdle = () => {
-            document.getElementById('screensaver').style.opacity = '0';
-            document.getElementById('screensaver').style.pointerEvents = 'none';
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
-                document.getElementById('screensaver').style.opacity = '1';
-                document.getElementById('screensaver').style.pointerEvents = 'auto';
-            }, 15000); // 15秒無動作觸發
-        };
-        ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => window.addEventListener(evt, resetIdle)); resetIdle();
-
-        // [Feature 27: 快捷鍵提示選單]
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '?') {
-                const m = document.getElementById('shortcuts-modal');
-                m.style.display = m.style.display === 'block' ? 'none' : 'block';
-            }
-            if (e.key.toLowerCase() === 'f') document.getElementById('fullscreen-btn').click();
-            if (e.key.toLowerCase() === 'd') document.getElementById('theme-toggle').click();
-            if (e.key.toLowerCase() === 'm') document.getElementById('matrix-btn').click();
-        });
-
-        // [Feature 38: 駭客任務代碼雨 Matrix Canvas]
-        const mCanvas = document.getElementById('matrix-canvas'); const mCtx = mCanvas.getContext('2d');
+        // 5. 駭客任務代碼雨 (Matrix Canvas)
+        const mCanvas = S('matrix-canvas'); const mCtx = mCanvas.getContext('2d');
         mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~".split('');
-        const fontSize = 16; const columns = mCanvas.width / fontSize; const drops = Array(Math.floor(columns)).fill(1);
+        const mFontSize = 16; const columns = mCanvas.width / mFontSize; const drops = Array(Math.floor(columns)).fill(1);
+        let matrixActive = false, matrixInt;
+        
         const drawMatrix = () => {
             mCtx.fillStyle = "rgba(0, 0, 0, 0.05)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            mCtx.fillStyle = "#0F0"; mCtx.font = fontSize + "px monospace";
+            mCtx.fillStyle = "#0F0"; mCtx.font = mFontSize + "px monospace";
             for (let i = 0; i < drops.length; i++) {
                 const text = letters[Math.floor(Math.random() * letters.length)];
-                mCtx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                mCtx.fillText(text, i * mFontSize, drops[i] * mFontSize);
+                if (drops[i] * mFontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
                 drops[i]++;
             }
         };
-        let matrixInt; let matrixActive = false;
-        document.getElementById('matrix-btn').onclick = () => {
+        S('matrix-btn').onclick = () => {
             matrixActive = !matrixActive;
-            if (matrixActive) { mCanvas.style.opacity = 1; mCanvas.style.zIndex = 1; matrixInt = setInterval(drawMatrix, 33); showToast('Welcome to the Matrix.'); }
+            if (matrixActive) { mCanvas.style.opacity = 1; mCanvas.style.zIndex = 1; matrixInt = setInterval(drawMatrix, 33); }
             else { mCanvas.style.opacity = 0; mCanvas.style.zIndex = -1; clearInterval(matrixInt); }
         };
+        window.addEventListener('resize', () => { mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight; });
 
-        // [Feature 29: 簡易版紙屑特效 Confetti]
-        const fireConfetti = () => {
-            const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            let particles = Array.from({length: 100}, () => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height - canvas.height, r: Math.random()*6+2, d: Math.random()*10+2, color: `hsl(${Math.random()*360}, 100%, 50%)` }));
-            let angle = 0;
-            const draw = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height); angle += 0.01;
-                particles.forEach(p => {
-                    ctx.beginPath(); ctx.fillStyle = p.color; ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-                    p.y += Math.cos(angle) + p.d; p.x += Math.sin(angle) * 2;
-                    if(p.y > canvas.height) { p.y = -10; p.x = Math.random()*canvas.width; }
-                });
-                if(particles[0].y < canvas.height * 2) requestAnimationFrame(draw); // 簡單停止機制
-            }; draw();
+        // =========================================
+        // 🚀 God Mode 進階功能保留區
+        // =========================================
+
+        // 硬體監控
+        S('hw-info').innerText = `💻 CPU: ${navigator.hardwareConcurrency || '?'}核 | 🌐 ${navigator.language}`;
+        setInterval(() => { if(performance.memory) S('mem-info').innerText = `🧠 RAM: ${(performance.memory.usedJSHeapSize/1048576).toFixed(1)}MB`; }, 1000);
+        if(navigator.connection) {
+            const updateNet = () => S('net-info').innerText = `📶 網速: ${navigator.connection.downlink}Mbps`;
+            navigator.connection.addEventListener('change', updateNet); updateNet();
+        }
+
+        // 語音控制
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(SpeechRec) {
+            const rec = new SpeechRec(); rec.lang = 'zh-TW';
+            rec.onresult = e => { S('mega-search').value = e.results[0][0].transcript; S('mega-search').dispatchEvent(new Event('input')); };
+            S('voice-btn').onclick = () => { rec.start(); S('voice-btn').innerText = "🔴 聆聽中..."; setTimeout(()=>S('voice-btn').innerText = "🎤 語音", 3000); };
+        }
+
+        // 相機預覽
+        const video = S('camera-view');
+        S('cam-btn').onclick = async () => {
+            if(video.srcObject) { 
+                if(document.pictureInPictureElement) document.exitPictureInPicture();
+                else video.requestPictureInPicture();
+                return; 
+            }
+            try { video.srcObject = await navigator.mediaDevices.getUserMedia({video: true}); video.style.display = 'block'; } catch(e) { alert("無相機權限"); }
         };
 
-        // 主題切換與時鐘
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-        document.getElementById('theme-toggle').onclick = () => {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            showToast(isDark ? '☀️ 早安' : '🌙 晚安');
+        // 原生分享
+        S('share-btn').onclick = () => {
+            if(navigator.share) navigator.share({title: 'God Mode 3.1', url: window.location.href});
+            else alert("不支援原生分享");
         };
 
-        // ==========================================
-        // 渲染資料與卡片互動
-        // ==========================================
+        // 自毀程式
+        S('destruct-btn').onclick = () => {
+            document.body.style.transform = "scale(0) rotate(720deg)"; document.body.style.opacity = "0"; document.body.style.transition = "2s cubic-bezier(0.5, 0, 0, 1)";
+            if(navigator.vibrate) navigator.vibrate([500, 100, 500]);
+            setTimeout(() => { document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:40vh;'>SYSTEM DESTROYED.</h1>"; document.body.style.transform="none"; document.body.style.opacity="1"; }, 2000);
+        };
+
+        // 搜尋與草稿
+        const searchInput = S('mega-search');
+        searchInput.value = localStorage.getItem('search_draft') || '';
+        searchInput.addEventListener('input', (e) => {
+            localStorage.setItem('search_draft', e.target.value);
+            renderCards(e.target.value);
+        });
+
+        // =========================================
+        // 🃏 卡片渲染與拖曳特效
+        // =========================================
         
-        // [Feature 32: 搜尋與高亮]
-        DOM.search.addEventListener('input', (e) => { searchQuery = e.target.value; renderData(); });
+        const container = S('grid-container');
+        let dragged;
 
-        const highlightText = (text, query) => {
-            if (!query) return text;
-            const regex = new RegExp(`(${query})`, 'gi');
-            return text.replace(regex, '<span class="highlight">$1</span>');
-        };
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('show-scroll'); });
+        }, { threshold: 0.1 });
 
-        // [Feature 30: 3D 翻轉] & [Feature 24: 雙擊點讚]
-        window.flipCard = (id) => document.getElementById(`card-${id}`).classList.toggle('flipped');
-
-        const renderData = () => {
-            DOM.container.innerHTML = '';
-            mockData.forEach(item => {
-                if (searchQuery && !item.title.includes(searchQuery) && !item.description.includes(searchQuery)) return;
+        const renderCards = (filter = '') => {
+            container.innerHTML = '';
+            cardsData.filter(c => c.title.includes(filter) || c.desc.includes(filter)).forEach((cardData) => {
+                const card = document.createElement('article');
+                card.className = 'card hidden-scroll';
+                card.draggable = true;
                 
-                // [Feature 34: 預估閱讀時間] (假設每秒讀 5 個字)
-                const readTime = Math.max(1, Math.ceil(item.description.length / 5));
-
-                const card = document.createElement('div');
-                card.className = 'flip-card'; card.id = `card-${item.id}`;
                 card.innerHTML = `
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front">
-                            <img src="${item.img}" class="card-img" alt="封面" loading="lazy">
-                            <h2 style="margin:0">${highlightText(item.title, searchQuery)}</h2>
-                            <p style="font-size:12px; color:#888;">⏱ 閱讀約需 ${readTime} 秒</p>
-                            <div style="margin-top:auto; display:flex; gap:5px;">
-                                <button onclick="flipCard(${item.id})">翻轉卡片 🔄</button>
-                                <button id="like-btn-${item.id}" style="background: ${item.liked ? '#ef4444' : 'rgba(0,0,0,0.1)'}">${item.liked ? '❤️' : '🤍'}</button>
-                            </div>
-                        </div>
-                        <div class="flip-card-back">
-                            <h2>詳細數據面板</h2>
-                            <p>${highlightText(item.description, searchQuery)}</p>
-                            <p>系統狀態: 🟢 正常</p>
-                            <button onclick="flipCard(${item.id})" style="margin-top:auto; background:#fff; color:#000;">返回正面 🔙</button>
-                        </div>
+                    <img src="https://picsum.photos/400/200?random=${cardData.id}" alt="Cover">
+                    <h2 style="mix-blend-mode: difference; color: white;">${cardData.title}</h2>
+                    <p>${cardData.desc}</p>
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <button class="btn copy-btn">📋 複製</button>
+                        <button class="btn del-btn" style="background:#ef4444; color:white;">❌ 刪除</button>
                     </div>
                 `;
 
-                // [Feature 24: 雙擊卡片點讚]
-                card.addEventListener('dblclick', () => {
-                    item.liked = !item.liked;
-                    document.getElementById(`like-btn-${item.id}`).innerText = item.liked ? '❤️' : '🤍';
-                    document.getElementById(`like-btn-${item.id}`).style.background = item.liked ? '#ef4444' : 'rgba(0,0,0,0.1)';
-                    fireConfetti(); showToast(item.liked ? '已點讚！' : '取消點讚');
-                });
+                // 拖曳功能
+                card.addEventListener('dragstart', () => { dragged = card; card.classList.add('dragging'); });
+                card.addEventListener('dragend', () => card.classList.remove('dragging'));
+                card.addEventListener('dragover', e => e.preventDefault());
+                card.addEventListener('drop', e => { e.preventDefault(); container.insertBefore(dragged, card); });
 
-                DOM.container.appendChild(card);
+                // 複製功能
+                card.querySelector('.copy-btn').onclick = () => { navigator.clipboard.writeText(cardData.desc); alert("已複製！"); };
+                
+                // 刪除功能
+                card.querySelector('.del-btn').onclick = () => { card.remove(); };
+
+                container.appendChild(card);
+                observer.observe(card);
             });
         };
 
-        renderData();
+        // 無限滾動
+        window.addEventListener('scroll', () => {
+            if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                const newId = cardsData.length;
+                cardsData.push({ id: newId, title: `無限擴展 #${newId}`, desc: `來自深淵的資料...`});
+                renderCards(searchInput.value);
+            }
+        });
+
+        renderCards();
+
     </script>
 </body>
 </html>

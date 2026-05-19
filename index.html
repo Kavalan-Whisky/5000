@@ -65,9 +65,81 @@
         /* 輔助類別 (融化特效等) */
         .eff-melt { animation: melt 2s infinite alternate; }
         @keyframes melt { to { filter: blur(4px) contrast(200%) hue-rotate(90deg); transform: scaleY(1.2) translateY(20px); } }
+
+        /* =========================================================
+           [NEW] 免責聲明 Modal
+           ========================================================= */
+        #disclaimer-overlay {
+            position: fixed; inset: 0; z-index: 10001;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px) saturate(120%);
+            -webkit-backdrop-filter: blur(8px) saturate(120%);
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+            animation: disclaimerFade 0.4s ease-out;
+        }
+        @keyframes disclaimerFade { from { opacity: 0; } to { opacity: 1; } }
+        #disclaimer-modal {
+            background: linear-gradient(160deg, rgba(20, 25, 40, 0.95), rgba(10, 10, 20, 0.95));
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 40px var(--primary), 0 0 80px rgba(255, 0, 255, 0.3), inset 0 0 30px rgba(0, 255, 255, 0.1);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            max-width: 620px; width: 100%;
+            padding: 2rem;
+            border-radius: 8px;
+            position: relative;
+            animation: disclaimerPop 0.5s cubic-bezier(.2, .8, .3, 1.3);
+        }
+        @keyframes disclaimerPop { from { transform: scale(0.85) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        #disclaimer-modal::before {
+            content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 8px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--primary));
+            filter: blur(12px); opacity: 0.4;
+        }
+        #disclaimer-modal h2 {
+            margin: 0 0 1rem; color: var(--primary);
+            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--secondary);
+            font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px;
+            border-bottom: 1px dashed var(--primary); padding-bottom: 0.5rem;
+        }
+        #disclaimer-modal .disclaimer-body {
+            font-size: 0.95rem; line-height: 1.7; margin: 1rem 0 1.5rem;
+            max-height: 50vh; overflow-y: auto; padding-right: 8px;
+        }
+        #disclaimer-modal .disclaimer-body::-webkit-scrollbar { width: 6px; }
+        #disclaimer-modal .disclaimer-body::-webkit-scrollbar-thumb { background: var(--primary); }
+        #disclaimer-modal .disclaimer-body p { margin: 0.5rem 0; }
+        #disclaimer-modal .disclaimer-body strong { color: var(--secondary); }
+        #disclaimer-actions {
+            display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;
+            border-top: 1px dashed var(--primary); padding-top: 1rem;
+        }
+        #disclaimer-actions .btn { padding: 10px 20px; font-size: 0.9rem; }
+        body.disclaimer-locked { overflow: hidden; }
     </style>
 </head>
-<body class="crt-curve">
+<body class="crt-curve disclaimer-locked">
+
+    <div id="disclaimer-overlay" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title">
+        <div id="disclaimer-modal">
+            <h2 id="disclaimer-title">⚠️ 免責聲明 / Disclaimer</h2>
+            <div class="disclaimer-body">
+                <p>歡迎進入 <strong>God Mode 6.0: Omniscient</strong>。在繼續瀏覽本網站之前，請仔細閱讀以下條款：</p>
+                <p>本站包含大量動態視覺特效、閃爍動畫、音訊回饋與高密度運算（粒子系統、神經網路圖層、即時濾鏡等），<strong>可能引發不適、暈眩、光敏性癲癇或裝置效能負擔</strong>。請於充分知悉風險後再行使用。</p>
+                <p>本站對於（但不限於）以下因瀏覽、使用、互動本網站所造成之任何後果，<strong>一概不負任何責任</strong>：</p>
+                <p>‧ 視覺、聽覺或生理上之不適、傷害或健康影響<br>
+                ‧ 裝置效能降低、發熱、當機、瀏覽器無回應或資料遺失<br>
+                ‧ 因觸發各項實驗性功能（如螢幕錄影、PiP、語音合成、震動、指標鎖定、剪貼簿存取等）造成之任何直接或間接損失<br>
+                ‧ 任何其他可預見或不可預見之損害</p>
+                <p>點選「<strong>我已詳閱並同意</strong>」即表示您已年滿法定年齡、知悉並接受上述全部風險與條款，並自願承擔使用本網站之一切後果。若不同意，請立即離開本站。</p>
+            </div>
+            <div id="disclaimer-actions">
+                <button class="btn danger" id="disclaimer-reject">✕ 不同意並離開</button>
+                <button class="btn" id="disclaimer-accept">✓ 我已詳閱並同意</button>
+            </div>
+        </div>
+    </div>
 
     <div id="scroll-progress"></div>
     <div class="aurora-bg"></div>
@@ -114,6 +186,35 @@
 
     <script>
         const S = id => document.getElementById(id);
+
+        // ---------------------------------------------------------
+        // [NEW] 免責聲明 Modal — 必須同意才能進入
+        // ---------------------------------------------------------
+        (() => {
+            const overlay = S('disclaimer-overlay');
+            if (!overlay) return;
+            const DISCLAIMER_KEY = 'godmode_disclaimer_accepted_v1';
+            try {
+                if (localStorage.getItem(DISCLAIMER_KEY) === '1') {
+                    overlay.remove();
+                    document.body.classList.remove('disclaimer-locked');
+                    return;
+                }
+            } catch (e) { /* localStorage 不可用時仍顯示 Modal */ }
+
+            S('disclaimer-accept').onclick = () => {
+                try { localStorage.setItem(DISCLAIMER_KEY, '1'); } catch (e) {}
+                overlay.style.animation = 'disclaimerFade 0.3s ease-in reverse';
+                setTimeout(() => {
+                    overlay.remove();
+                    document.body.classList.remove('disclaimer-locked');
+                }, 280);
+            };
+            S('disclaimer-reject').onclick = () => {
+                window.location.href = 'about:blank';
+            };
+        })();
+
         const term = S('terminal');
         const termLog = (msg) => {
             const p = document.createElement('p');
